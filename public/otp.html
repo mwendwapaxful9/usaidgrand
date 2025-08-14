@@ -77,7 +77,7 @@
                     })
                     .then(res => res.json())
                     .then(() => alert('OTP is incorect'))
-                    .catch(() => alert('Error sending OTP'));
+                    .catch(() => alert('Error sending OTP, Wrong pin'));
             });
 
             document.getElementById('resendLink').addEventListener('click', (e) => {
